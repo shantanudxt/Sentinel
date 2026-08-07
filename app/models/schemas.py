@@ -1,5 +1,5 @@
 from datetime import datetime
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
 
 class TelemetryResponse(BaseModel):
@@ -9,8 +9,9 @@ class TelemetryResponse(BaseModel):
     vibration: float
     motor_current: float
     timestamp: datetime
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(
+        from_attributes=True
+    )
 
 
 class TelemetryAcceptedResponse(BaseModel):
