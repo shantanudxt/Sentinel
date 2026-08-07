@@ -170,3 +170,17 @@ def test_get_robot_telemetry(db_session):
     assert data[0]["temperature"] == 72.5
     assert data[0]["vibration"] == 0.04
     assert data[0]["motor_current"] == 3.2
+
+def test_get_robot_telemetry_not_found():
+
+    response = client.get(
+        "/api/v1/robots/UNKNOWN/telemetry"
+    )
+
+    assert response.status_code == 404
+
+    data = response.json()
+
+    assert data["detail"] == (
+        "No telemetry found for robot UNKNOWN"
+    )
