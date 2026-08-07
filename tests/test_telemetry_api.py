@@ -130,3 +130,43 @@ def test_get_telemetry(db_session):
     assert data[0]["temperature"] == 72.5
     assert data[0]["vibration"] == 0.04
     assert data[0]["motor_current"] == 3.2
+
+def test_get_robot_telemetry(db_session):
+
+    robot_1 = Telemetry(
+        robot_id="ARM-001",
+        temperature=72.5,
+        vibration=0.04,
+        motor_current=3.2,
+        timestamp=datetime.now()
+    )
+
+    robot_2 = Telemetry(
+        robot_id="ARM-002",
+        temperature=68.5,
+        vibration=0.02,
+        motor_current=2.8,
+        timestamp=datetime.now()
+    )
+
+    db_session.add_all([
+        robot_1,
+        robot_2
+    ])
+
+    db_session.commit()
+
+    response = client.get(
+        "/api/v1/robots/ARM-001/telemetry"
+    )
+
+    assert response.status_code == 200
+
+    data = response.json()
+
+    assert len(data) == 1
+
+    assert data[0]["robot_id"] == "ARM-001"
+    assert data[0]["temperature"] == 72.5
+    assert data[0]["vibration"] == 0.04
+    assert data[0]["motor_current"] == 3.2
