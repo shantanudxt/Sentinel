@@ -184,3 +184,32 @@ def test_get_robot_telemetry_not_found():
     assert data["detail"] == (
         "No telemetry found for robot UNKNOWN"
     )
+
+@patch(
+    "app.api.routes.publish_telemetry",
+    side_effect=Exception("Kafka unavailable")
+)
+def test_ingest_telemetry_kafka_unavailable(mock_publish):
+
+    payload = {
+        "robot_id": "ARM-001",
+        "temperature": 72.5,
+        "vibration": 0.04,
+        "motor_current": 3.2,
+        "timestamp": "2026-08-07T17:00:00Z"
+    }
+
+    response = client.post(
+        "/api/v1/telemetry",
+        json=payload
+    )
+
+    assert response.status_code == 503
+
+    data = response.json()
+
+    assert data["detail"] == (
+        "Telemetry ingestion service unavailable"
+    )
+
+    mock_publish.assert_called_once()
