@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
 from app.database.connection import SessionLocal
@@ -28,10 +28,16 @@ def get_db():
 async def ingest_telemetry(
     telemetry: RobotTelemetry
 ):
+    try:
+        publish_telemetry(
+            telemetry.model_dump(mode="json")
+        )
 
-    publish_telemetry(
-        telemetry.model_dump(mode="json")
-    )
+    except Exception as e:
+        raise HTTPException(
+            status_code=503,
+            detail="Telemetry ingestion service unavailable"
+        ) 
 
     return {
         "status": "accepted",
@@ -78,6 +84,12 @@ async def get_robot_telemetry(
         .limit(100)
         .all()
     )
+
+    if not records:
+        raise HTTPException(
+            status_code=404,
+            detail=f"No telemetry found for robot {robot_id}"
+        )
 
     return records
 
