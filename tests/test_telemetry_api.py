@@ -1,6 +1,7 @@
 from datetime import datetime
 from unittest.mock import patch
 
+import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
@@ -30,22 +31,29 @@ TestingSessionLocal = sessionmaker(
     bind=test_engine
 )
 
-def override_get_db():
+@pytest.fixture
+def db_session():
+    Base.metadata.drop_all(bind=test_engine)
+    Base.metadata.create_all(bind=test_engine)
 
     db = TestingSessionLocal()
 
     try:
         yield db
+    finally:
+        db.close()
 
+
+def override_get_db():
+    db = TestingSessionLocal()
+
+    try:
+        yield db
     finally:
         db.close()
 
 
 app.dependency_overrides[get_db] = override_get_db
-
-Base.metadata.create_all(
-    bind=test_engine
-)
 
 @patch(
     "app.api.routes.publish_telemetry"
@@ -94,9 +102,7 @@ def test_ingest_telemetry_rejects_invalid_temperature():
 
     assert response.status_code == 422
 
-def test_get_telemetry():
-
-    db = TestingSessionLocal()
+def test_get_telemetry(db_session):
 
     telemetry = Telemetry(
         robot_id="ARM-001",
@@ -106,11 +112,9 @@ def test_get_telemetry():
         timestamp=datetime.now()
     )
 
-    db.add(telemetry)
-    db.commit()
-    db.refresh(telemetry)
-
-    db.close()
+    db_session.add(telemetry)
+    db_session.commit()
+    db_session.refresh(telemetry)
 
     response = client.get(
         "/api/v1/telemetry"
