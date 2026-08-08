@@ -2,20 +2,23 @@ import json
 from datetime import datetime
 
 from kafka import KafkaConsumer
+from kafka.serializer import Deserializer
 from sqlalchemy.orm import Session
 
 from app.config import settings
 from app.database.connection import SessionLocal
 from app.database.models import Telemetry
 
+class JsonDeserializer(Deserializer):
+    def deserialize(self, data):
+        return json.loads(data.decode("utf-8"))
 
 consumer = KafkaConsumer(
     settings.kafka_topic,
 
     bootstrap_servers=settings.kafka_bootstrap_servers,
 
-    value_deserializer=lambda message:
-        json.loads(message.decode("utf-8")),
+    value_deserializer=JsonDeserializer(),
 
     auto_offset_reset="earliest",
 
