@@ -19,7 +19,7 @@ consumer = KafkaConsumer(
 
     auto_offset_reset="earliest",
 
-    enable_auto_commit=True,
+    enable_auto_commit=False,
 
     group_id="telemetry-processing-group"
 )
