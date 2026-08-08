@@ -18,6 +18,12 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
   kafka:
     image: apache/kafka:3.7.2
     container_name: physicalai-kafka
@@ -59,8 +65,27 @@ services:
       - "8000:8000"
 
     depends_on:
+      postgres:
+        condition: service_healthy
+      kafka:
+        condition: service_started
+
+  consumer:
+    build: .
+    container_name: physicalai-consumer
+
+    env_file:
+      - .env
+
+    environment:
+      POSTGRES_HOST: postgres
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+
+    depends_on:
       - postgres
       - kafka
+
+    command: python -u -m app.kafka.consumer
 
 volumes:
   postgres_data:
