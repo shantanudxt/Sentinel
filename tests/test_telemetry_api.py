@@ -24,7 +24,7 @@ def override_get_db():
         yield db
     finally:
         db.close()
-        
+
 @pytest.fixture(autouse=True)
 def override_database():
     app.dependency_overrides[get_db] = override_get_db
@@ -96,6 +96,20 @@ def test_ingest_telemetry(mock_publish):
     assert data["robot_id"] == "ARM-001"
 
     mock_publish.assert_called_once()
+
+@patch(
+    "app.api.routes.KafkaProducer",
+    side_effect=Exception("Kafka unavailable")
+)
+def test_readiness_check_kafka_failure(mock_kafka):
+    response = client.get("/api/v1/ready")
+
+    assert response.status_code == 200
+    assert response.json() == {
+        "status": "not_ready"
+    }
+
+    mock_kafka.assert_called_once()
 
 def test_ingest_telemetry_rejects_invalid_temperature():
 
@@ -204,13 +218,16 @@ def test_readiness_check_database_failure():
     finally:
         app.dependency_overrides[get_db] = override_get_db
 
-def test_readiness_check():
+@patch("app.api.routes.KafkaProducer")
+def test_readiness_check(mock_kafka):
     response = client.get("/api/v1/ready")
 
     assert response.status_code == 200
     assert response.json() == {
         "status": "ready"
     }
+
+    mock_kafka.assert_called_once()
 
 def test_get_robot_telemetry_not_found():
 
