@@ -37,7 +37,12 @@ def process_telemetry(data: dict, db: Session):
     )
 
     db.add(telemetry)
-    db.commit()
+    
+    try:
+        db.commit()
+    except Exception:
+        db.rollback()
+    raise
 
 
 def start_consumer():
@@ -63,7 +68,7 @@ def start_consumer():
             )
 
             consumer.commit()
-            
+
     finally:
 
         db.close()
