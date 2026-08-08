@@ -43,7 +43,14 @@ def db_session():
     finally:
         db.close()
 
+def test_health_check():
+    response = client.get("/api/v1/health")
 
+    assert response.status_code == 200
+    assert response.json() == {
+        "status": "healthy"
+    }
+    
 def override_get_db():
     db = TestingSessionLocal()
 

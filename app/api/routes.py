@@ -22,6 +22,12 @@ def get_db():
     finally:
         db.close()
 
+@router.get("/health")
+async def health_check():
+    return {
+        "status": "healthy"
+    }
+
 @router.post(
         "/telemetry",
         response_model=TelemetryAcceptedResponse)
