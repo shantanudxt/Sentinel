@@ -10,7 +10,8 @@ from app.database.connection import SessionLocal
 from app.database.models import Telemetry
 
 class JsonDeserializer(Deserializer):
-    def deserialize(self, data):
+    def deserialize(self, *args):
+        data = args[-1]
         return json.loads(data.decode("utf-8"))
 
 consumer = KafkaConsumer(
