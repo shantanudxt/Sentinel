@@ -2,6 +2,8 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import text
 from sqlalchemy.orm import Session
 
+from kafka import KafkaProducer
+from app.config import settings
 from app.database.connection import SessionLocal
 from app.database.models import Telemetry
 from app.kafka.producer import publish_telemetry
@@ -12,6 +14,14 @@ router = APIRouter(
     prefix="/api/v1",
     tags=["Telemetry"]
 )
+
+def check_kafka_connection():
+    producer = KafkaProducer(
+        bootstrap_servers=settings.kafka_bootstrap_servers,
+        bootstrap_timeout_ms=1000,
+    )
+
+    producer.close()
 
 def get_db():
 
@@ -30,11 +40,15 @@ async def readiness_check(
     try:
         db.execute(text("SELECT 1"))
 
+        check_kafka_connection()
+
         return {
             "status": "ready"
         }
 
-    except Exception:
+    except Exception as e:
+        print(f"Readiness check failed: {e}")
+
         return {
             "status": "not_ready"
         }
