@@ -14,19 +14,15 @@ class JsonDeserializer(Deserializer):
         data = args[-1]
         return json.loads(data.decode("utf-8"))
 
-consumer = KafkaConsumer(
-    settings.kafka_topic,
-
-    bootstrap_servers=settings.kafka_bootstrap_servers,
-
-    value_deserializer=JsonDeserializer(),
-
-    auto_offset_reset="earliest",
-
-    enable_auto_commit=False,
-
-    group_id="telemetry-processing-group"
-)
+def get_consumer():
+    return KafkaConsumer(
+        settings.kafka_topic,
+        bootstrap_servers=settings.kafka_bootstrap_servers,
+        value_deserializer=JsonDeserializer(),
+        auto_offset_reset="earliest",
+        enable_auto_commit=False,
+        group_id="telemetry-processing-group"
+    )
 
 
 def process_telemetry(data: dict, db: Session):
@@ -53,6 +49,7 @@ def start_consumer():
 
     print("Kafka consumer started...")
 
+    consumer = get_consumer()
     db = SessionLocal()
 
     try:
@@ -74,8 +71,8 @@ def start_consumer():
             consumer.commit()
 
     finally:
-
         db.close()
+        consumer.close()
 
 
 if __name__ == "__main__":

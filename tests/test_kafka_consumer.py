@@ -20,8 +20,8 @@ def test_consumer_commits_offset_after_successful_persistence():
     mock_consumer.__iter__.return_value = [message]
 
     with patch(
-        "app.kafka.consumer.consumer",
-        mock_consumer
+        "app.kafka.consumer.get_consumer",
+        return_value=mock_consumer
     ), patch(
         "app.kafka.consumer.SessionLocal",
         return_value=db
@@ -47,8 +47,8 @@ def test_consumer_does_not_commit_offset_when_persistence_fails():
     mock_consumer.__iter__.return_value = [message]
 
     with patch(
-        "app.kafka.consumer.consumer",
-        mock_consumer
+        "app.kafka.consumer.get_consumer",
+        return_value=mock_consumer
     ), patch(
         "app.kafka.consumer.SessionLocal",
         return_value=db
