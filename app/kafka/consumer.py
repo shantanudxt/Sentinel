@@ -26,7 +26,6 @@ consumer = KafkaConsumer(
 
 
 def process_telemetry(data: dict, db: Session):
-
     telemetry = Telemetry(
         robot_id=data["robot_id"],
         temperature=data["temperature"],
@@ -35,7 +34,7 @@ def process_telemetry(data: dict, db: Session):
         timestamp=datetime.fromisoformat(
             data["timestamp"].replace("Z", "+00:00")
         )
-)
+    )
 
     db.add(telemetry)
     db.commit()
@@ -63,6 +62,8 @@ def start_consumer():
                 db
             )
 
+            consumer.commit()
+            
     finally:
 
         db.close()
