@@ -1,0 +1,44 @@
+from unittest.mock import MagicMock
+
+import pytest
+
+from app.kafka.consumer import process_telemetry
+
+
+def test_process_telemetry_commits_transaction():
+    db = MagicMock()
+
+    data = {
+        "robot_id": "ARM-001",
+        "temperature": 72.5,
+        "vibration": 0.04,
+        "motor_current": 3.2,
+        "timestamp": "2026-08-07T17:00:00Z"
+    }
+
+    process_telemetry(data, db)
+
+    db.add.assert_called_once()
+    db.commit.assert_called_once()
+    db.rollback.assert_not_called()
+
+
+def test_process_telemetry_rolls_back_on_database_error():
+    db = MagicMock()
+
+    db.commit.side_effect = Exception("Database error")
+
+    data = {
+        "robot_id": "ARM-001",
+        "temperature": 72.5,
+        "vibration": 0.04,
+        "motor_current": 3.2,
+        "timestamp": "2026-08-07T17:00:00Z"
+    }
+
+    with pytest.raises(Exception, match="Database error"):
+        process_telemetry(data, db)
+
+    db.add.assert_called_once()
+    db.commit.assert_called_once()
+    db.rollback.assert_called_once()
