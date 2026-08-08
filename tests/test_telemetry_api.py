@@ -1,5 +1,5 @@
 from datetime import datetime
-from unittest.mock import patch
+from unittest.mock import MagicMock, patch
 
 import pytest
 from fastapi.testclient import TestClient
@@ -16,6 +16,22 @@ from app.database.models import Telemetry
 client = TestClient(app)
 
 TEST_DATABASE_URL = "sqlite:///:memory:"
+
+def override_get_db():
+    db = TestingSessionLocal()
+
+    try:
+        yield db
+    finally:
+        db.close()
+        
+@pytest.fixture(autouse=True)
+def override_database():
+    app.dependency_overrides[get_db] = override_get_db
+
+    yield
+
+    app.dependency_overrides.clear()
 
 test_engine = create_engine(
     TEST_DATABASE_URL,
@@ -50,17 +66,6 @@ def test_health_check():
     assert response.json() == {
         "status": "healthy"
     }
-    
-def override_get_db():
-    db = TestingSessionLocal()
-
-    try:
-        yield db
-    finally:
-        db.close()
-
-
-app.dependency_overrides[get_db] = override_get_db
 
 @patch(
     "app.api.routes.publish_telemetry"
@@ -177,6 +182,35 @@ def test_get_robot_telemetry(db_session):
     assert data[0]["temperature"] == 72.5
     assert data[0]["vibration"] == 0.04
     assert data[0]["motor_current"] == 3.2
+
+def test_readiness_check_database_failure():
+    db = MagicMock()
+
+    db.execute.side_effect = Exception("Database unavailable")
+
+    def override_db_failure():
+        yield db
+
+    app.dependency_overrides[get_db] = override_db_failure
+
+    try:
+        response = client.get("/api/v1/ready")
+
+        assert response.status_code == 200
+        assert response.json() == {
+            "status": "not_ready"
+        }
+
+    finally:
+        app.dependency_overrides[get_db] = override_get_db
+
+def test_readiness_check():
+    response = client.get("/api/v1/ready")
+
+    assert response.status_code == 200
+    assert response.json() == {
+        "status": "ready"
+    }
 
 def test_get_robot_telemetry_not_found():
 

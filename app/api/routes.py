@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException
+from sqlalchemy import text
 from sqlalchemy.orm import Session
 
 from app.database.connection import SessionLocal
@@ -22,6 +23,22 @@ def get_db():
     finally:
         db.close()
 
+@router.get("/ready")
+async def readiness_check(
+    db: Session = Depends(get_db)
+):
+    try:
+        db.execute(text("SELECT 1"))
+
+        return {
+            "status": "ready"
+        }
+
+    except Exception:
+        return {
+            "status": "not_ready"
+        }
+    
 @router.get("/health")
 async def health_check():
     return {
