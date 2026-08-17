@@ -6,6 +6,8 @@ Sentinel demonstrates a reliable event-driven pipeline for receiving, transporti
 
 [![CI](https://github.com/shantanudxt/Sentinel/actions/workflows/tests.yml/badge.svg)](https://github.com/shantanudxt/Sentinel/actions)
 
+[Sentinel — Documentation](https://shantanudxt.github.io/Sentinel/docs/Documentation.html)
+
 ## Why Sentinel?
 
 Industrial robots continuously generate telemetry such as temperature, vibration, and motor current. Sentinel provides a simple architecture for ingesting these events through Kafka and persisting them in PostgreSQL while ensuring that failed database operations do not result in acknowledged Kafka messages.
