@@ -1,0 +1,1512 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sentinel — Documentation</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Fira+Code:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --font-body: 'DM Sans', system-ui, sans-serif;
+    --font-mono: 'Fira Code', 'SF Mono', Consolas, monospace;
+
+    --bg: #0f1419;
+    --surface: #161b22;
+    --surface2: #1c2330;
+    --surface-elevated: #202938;
+    --border: rgba(255, 255, 255, 0.07);
+    --border-bright: rgba(255, 255, 255, 0.14);
+    --text: #e6edf3;
+    --text-dim: #8b949e;
+    --text-bright: #f0f6fc;
+
+    --accent: #38bdf8;
+    --accent-dim: rgba(56, 189, 248, 0.1);
+    --teal: #2dd4bf;
+    --teal-dim: rgba(45, 212, 191, 0.1);
+    --amber: #fbbf24;
+    --amber-dim: rgba(251, 191, 36, 0.1);
+    --green: #4ade80;
+    --green-dim: rgba(74, 222, 128, 0.1);
+    --rose: #fb7185;
+    --rose-dim: rgba(251, 113, 133, 0.1);
+    --slate: #94a3b8;
+    --slate-dim: rgba(148, 163, 184, 0.1);
+  }
+
+  @media (prefers-color-scheme: light) {
+    :root {
+      --bg: #f4f6f9;
+      --surface: #ffffff;
+      --surface2: #eef2f7;
+      --surface-elevated: #f8fafc;
+      --border: rgba(0, 0, 0, 0.08);
+      --border-bright: rgba(0, 0, 0, 0.15);
+      --text: #1e293b;
+      --text-dim: #64748b;
+      --text-bright: #0f172a;
+
+      --accent: #0284c7;
+      --accent-dim: rgba(2, 132, 199, 0.08);
+      --teal: #0d9488;
+      --teal-dim: rgba(13, 148, 136, 0.08);
+      --amber: #d97706;
+      --amber-dim: rgba(217, 119, 6, 0.08);
+      --green: #16a34a;
+      --green-dim: rgba(22, 163, 74, 0.08);
+      --rose: #e11d48;
+      --rose-dim: rgba(225, 29, 72, 0.08);
+      --slate: #475569;
+      --slate-dim: rgba(71, 85, 105, 0.08);
+    }
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    background-image:
+      linear-gradient(rgba(56, 189, 248, 0.025) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(56, 189, 248, 0.025) 1px, transparent 1px);
+    background-size: 32px 32px;
+    color: var(--text);
+    font-family: var(--font-body);
+    line-height: 1.6;
+    padding: 0;
+    min-height: 100vh;
+    overflow-wrap: break-word;
+  }
+
+  @media (prefers-color-scheme: light) {
+    body {
+      background-image:
+        linear-gradient(rgba(2, 132, 199, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(2, 132, 199, 0.03) 1px, transparent 1px);
+    }
+  }
+
+  /* ---- Animations ---- */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(14px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes fadeScale {
+    from { opacity: 0; transform: scale(0.94); }
+    to { opacity: 1; transform: scale(1); }
+  }
+  .reveal {
+    animation: fadeUp 0.5s ease-out both;
+    animation-delay: calc(var(--i, 0) * 0.05s);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-delay: 0ms !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+
+  /* ---- Nav ---- */
+  nav {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: color-mix(in srgb, var(--bg) 85%, transparent);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    padding: 10px 24px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    flex-wrap: wrap;
+  }
+  nav .brand {
+    font-family: var(--font-mono);
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--accent);
+    white-space: nowrap;
+  }
+  nav .brand::before {
+    content: '◆ ';
+    opacity: 0.7;
+  }
+  nav .links {
+    display: flex;
+    gap: 4px;
+    flex-wrap: wrap;
+    margin-left: auto;
+  }
+  nav .links a {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--text-dim);
+    text-decoration: none;
+    padding: 4px 10px;
+    border-radius: 4px;
+    transition: color 0.15s, background 0.15s;
+  }
+  nav .links a:hover {
+    color: var(--accent);
+    background: var(--accent-dim);
+  }
+
+  /* ---- Layout ---- */
+  main {
+    max-width: 1080px;
+    margin: 0 auto;
+    padding: 0 24px;
+  }
+
+  section {
+    padding: 56px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  section:last-child { border-bottom: none; }
+
+  /* ---- Section labels ---- */
+  .section-label {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--accent);
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .section-label::before {
+    content: '';
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--accent);
+  }
+
+  h2 {
+    font-size: 30px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    margin-bottom: 8px;
+    color: var(--text-bright);
+  }
+
+  h3 {
+    font-size: 17px;
+    font-weight: 600;
+    margin-bottom: 6px;
+    color: var(--text-bright);
+  }
+
+  p { margin-bottom: 14px; color: var(--text); }
+
+  .lead {
+    font-size: 17px;
+    color: var(--text-dim);
+    max-width: 65ch;
+  }
+
+  a {
+    color: var(--accent);
+    text-decoration: none;
+  }
+  a:hover { text-decoration: underline; }
+
+  /* ---- Hero ---- */
+  .hero {
+    padding: 80px 0 48px;
+    border-bottom: 1px solid var(--border);
+  }
+  .hero h1 {
+    font-size: clamp(36px, 6vw, 56px);
+    font-weight: 700;
+    letter-spacing: -2px;
+    line-height: 1.05;
+    margin-bottom: 16px;
+    color: var(--text-bright);
+  }
+  .hero .tagline {
+    font-size: 20px;
+    color: var(--text-dim);
+    max-width: 60ch;
+    margin-bottom: 32px;
+    line-height: 1.5;
+  }
+
+  .hero-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 16px;
+    max-width: 720px;
+  }
+  .hero-stat {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 18px 20px;
+    animation: fadeScale 0.4s ease-out both;
+    animation-delay: calc(var(--i, 0) * 0.08s);
+  }
+  .hero-stat__value {
+    font-size: 28px;
+    font-weight: 700;
+    letter-spacing: -1px;
+    color: var(--text-bright);
+    font-variant-numeric: tabular-nums;
+  }
+  .hero-stat__label {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--text-dim);
+    margin-top: 4px;
+  }
+
+  /* ---- Cards ---- */
+  .card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 16px;
+  }
+
+  .ve-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 20px;
+    transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+  }
+  .ve-card:hover {
+    transform: translateY(-2px);
+    border-color: var(--border-bright);
+    box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+  }
+
+  .ve-card--accent { border-left: 3px solid var(--accent); }
+  .ve-card--teal { border-left: 3px solid var(--teal); }
+  .ve-card--amber { border-left: 3px solid var(--amber); }
+  .ve-card--green { border-left: 3px solid var(--green); }
+  .ve-card--rose { border-left: 3px solid var(--rose); }
+  .ve-card--slate { border-left: 3px solid var(--slate); }
+
+  .ve-card__label {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    margin-bottom: 10px;
+  }
+  .ve-card--accent .ve-card__label { color: var(--accent); }
+  .ve-card--teal .ve-card__label { color: var(--teal); }
+  .ve-card--amber .ve-card__label { color: var(--amber); }
+  .ve-card--green .ve-card__label { color: var(--green); }
+  .ve-card--rose .ve-card__label { color: var(--rose); }
+  .ve-card--slate .ve-card__label { color: var(--slate); }
+
+  .ve-card h3 { margin-bottom: 8px; }
+
+  .ve-card p {
+    font-size: 14px;
+    color: var(--text-dim);
+    margin-bottom: 0;
+  }
+
+  /* ---- Flow diagram (CSS-based) ---- */
+  .flow-diagram {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    align-items: center;
+    max-width: 720px;
+    margin: 0 auto;
+  }
+
+  .flow-node {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px 28px;
+    text-align: center;
+    width: 100%;
+    max-width: 420px;
+    position: relative;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  .flow-node:hover {
+    border-color: var(--border-bright);
+  }
+  .flow-node__label {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    margin-bottom: 6px;
+  }
+  .flow-node__title {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text-bright);
+  }
+  .flow-node__desc {
+    font-size: 12px;
+    color: var(--text-dim);
+    margin-top: 4px;
+  }
+
+  .flow-node--sim { border-left: 3px solid var(--slate); }
+  .flow-node--sim .flow-node__label { color: var(--slate); }
+  .flow-node--api { border-left: 3px solid var(--accent); }
+  .flow-node--api .flow-node__label { color: var(--accent); }
+  .flow-node--kafka { border-left: 3px solid var(--amber); }
+  .flow-node--kafka .flow-node__label { color: var(--amber); }
+  .flow-node--consumer { border-left: 3px solid var(--teal); }
+  .flow-node--consumer .flow-node__label { color: var(--teal); }
+  .flow-node--db { border-left: 3px solid var(--green); }
+  .flow-node--db .flow-node__label { color: var(--green); }
+
+  .flow-arrow {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    padding: 6px 0;
+    color: var(--text-dim);
+  }
+  .flow-arrow svg {
+    width: 18px;
+    height: 24px;
+    fill: none;
+    stroke: var(--border-bright);
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+  .flow-arrow__label {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--text-dim);
+  }
+
+  /* ---- Table ---- */
+  .table-wrap {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+  .table-scroll { overflow-x: auto; }
+
+  .data-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+    line-height: 1.5;
+  }
+  .data-table thead { position: sticky; top: 0; z-index: 2; }
+  .data-table th {
+    background: var(--surface-elevated);
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--text-dim);
+    text-align: left;
+    padding: 12px 16px;
+    border-bottom: 2px solid var(--border-bright);
+    white-space: nowrap;
+  }
+  .data-table td {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+    color: var(--text);
+  }
+  .data-table tbody tr:nth-child(even) { background: var(--accent-dim); }
+  .data-table tbody tr { transition: background 0.15s; }
+  .data-table tbody tr:hover { background: var(--surface2); }
+  .data-table tbody tr:last-child td { border-bottom: none; }
+  .data-table code {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    background: var(--accent-dim);
+    color: var(--accent);
+    padding: 1px 5px;
+    border-radius: 3px;
+  }
+  .data-table small {
+    display: block;
+    color: var(--text-dim);
+    font-size: 11px;
+    margin-top: 2px;
+  }
+
+  .status {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 4px;
+    white-space: nowrap;
+  }
+  .status--get { background: var(--green-dim); color: var(--green); }
+  .status--post { background: var(--amber-dim); color: var(--amber); }
+
+  .method-cell {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 600;
+  }
+
+  /* ---- Code blocks ---- */
+  .code-file {
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+    margin: 16px 0;
+  }
+  .code-file__header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 16px;
+    background: var(--surface-elevated);
+    border-bottom: 1px solid var(--border);
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--text-dim);
+  }
+  .code-file__header::before {
+    content: '';
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--accent);
+    opacity: 0.6;
+  }
+  .code-file__body {
+    font-family: var(--font-mono);
+    font-size: 13px;
+    line-height: 1.55;
+    padding: 16px;
+    background: var(--surface2);
+    white-space: pre-wrap;
+    word-break: break-word;
+    overflow-x: auto;
+    max-height: 500px;
+    overflow-y: auto;
+    color: var(--text);
+  }
+  .code-file__body .k { color: var(--rose); }
+  .code-file__body .s { color: var(--green); }
+  .code-file__body .c { color: var(--text-dim); font-style: italic; }
+  .code-file__body .n { color: var(--amber); }
+  .code-file__body .f { color: var(--accent); }
+
+  /* Inline code */
+  code {
+    font-family: var(--font-mono);
+    font-size: 0.88em;
+    background: var(--accent-dim);
+    color: var(--accent);
+    padding: 1px 6px;
+    border-radius: 3px;
+  }
+
+  /* ---- Directory tree ---- */
+  .dir-tree {
+    font-family: var(--font-mono);
+    font-size: 13px;
+    line-height: 1.75;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 20px 24px;
+    overflow-x: auto;
+    white-space: pre;
+    color: var(--text);
+  }
+  .dir-tree .dir { color: var(--accent); font-weight: 600; }
+  .dir-tree .file { color: var(--text); }
+  .dir-tree .ann { color: var(--text-dim); font-size: 11px; }
+  .dir-tree .hl { color: var(--teal); font-weight: 600; }
+
+  /* ---- Config grid ---- */
+  .config-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+  .config-row {
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    gap: 16px;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .config-row:last-child { border-bottom: none; }
+  .config-key {
+    font-family: var(--font-mono);
+    font-size: 13px;
+    color: var(--accent);
+  }
+  .config-desc {
+    font-size: 13px;
+    color: var(--text-dim);
+  }
+  .config-desc small {
+    display: block;
+    font-size: 11px;
+    color: var(--text-dim);
+    opacity: 0.7;
+    margin-top: 2px;
+  }
+  @media (max-width: 640px) {
+    .config-row { grid-template-columns: 1fr; gap: 4px; }
+  }
+
+  /* ---- Callout ---- */
+  .callout {
+    padding: 16px 20px;
+    border-radius: 8px;
+    border-left: 4px solid var(--accent);
+    background: var(--accent-dim);
+    margin: 20px 0;
+    font-size: 14px;
+    line-height: 1.6;
+  }
+  .callout--warning {
+    border-left-color: var(--amber);
+    background: var(--amber-dim);
+  }
+  .callout__title {
+    font-weight: 600;
+    margin-bottom: 6px;
+    color: var(--text-bright);
+    font-size: 13px;
+  }
+  .callout--warning .callout__title { color: var(--amber); }
+  .callout p { margin-bottom: 0; color: var(--text-dim); }
+  .callout code {
+    font-size: 12px;
+  }
+
+  /* ---- Pipeline steps ---- */
+  .pipeline {
+    display: flex;
+    gap: 0;
+    align-items: stretch;
+    overflow-x: auto;
+    padding-bottom: 8px;
+  }
+  .pipeline-step {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 14px 16px;
+    min-width: 130px;
+    flex-shrink: 0;
+    text-align: center;
+  }
+  .pipeline-step__num {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    font-weight: 600;
+    margin-bottom: 6px;
+    color: var(--text-dim);
+  }
+  .pipeline-step__name {
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 4px;
+    color: var(--text-bright);
+  }
+  .pipeline-step__detail {
+    font-size: 11px;
+    color: var(--text-dim);
+    line-height: 1.4;
+  }
+  .pipeline-arrow {
+    display: flex;
+    align-items: center;
+    padding: 0 4px;
+    color: var(--border-bright);
+    font-size: 18px;
+    flex-shrink: 0;
+  }
+
+  /* ---- Lists ---- */
+  .node-list {
+    list-style: none;
+    font-size: 13px;
+    line-height: 1.9;
+  }
+  .node-list li {
+    padding-left: 16px;
+    position: relative;
+  }
+  .node-list li::before {
+    content: '›';
+    color: var(--text-dim);
+    font-weight: 600;
+    position: absolute;
+    left: 0;
+  }
+  .node-list code {
+    font-size: 11px;
+  }
+
+  /* ---- Tags ---- */
+  .tag {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    font-weight: 500;
+    padding: 2px 8px;
+    border-radius: 4px;
+  }
+  .tag--accent { background: var(--accent-dim); color: var(--accent); }
+  .tag--teal { background: var(--teal-dim); color: var(--teal); }
+  .tag--amber { background: var(--amber-dim); color: var(--amber); }
+  .tag--green { background: var(--green-dim); color: var(--green); }
+  .tag--rose { background: var(--rose-dim); color: var(--rose); }
+  .tag--slate { background: var(--slate-dim); color: var(--slate); }
+
+  /* ---- Schema display ---- */
+  .schema-block {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+    margin: 16px 0;
+  }
+  .schema-block__header {
+    padding: 10px 16px;
+    background: var(--surface-elevated);
+    border-bottom: 1px solid var(--border);
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .schema-block__header::before {
+    content: '{ }';
+    color: var(--accent);
+    opacity: 0.7;
+  }
+  .schema-block pre {
+    font-family: var(--font-mono);
+    font-size: 13px;
+    line-height: 1.6;
+    padding: 16px;
+    white-space: pre-wrap;
+    word-break: break-word;
+    color: var(--text);
+  }
+  .schema-block .k { color: var(--rose); }
+  .schema-block .s { color: var(--green); }
+  .schema-block .n { color: var(--amber); }
+
+  /* ---- Two column ---- */
+  .two-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+  @media (max-width: 768px) {
+    .two-col { grid-template-columns: 1fr; }
+  }
+
+  /* ---- Responsive ---- */
+  @media (max-width: 768px) {
+    main { padding: 0 16px; }
+    section { padding: 40px 0; }
+    .hero { padding: 48px 0 32px; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="brand">Sentinel</div>
+  <div class="links">
+    <a href="#architecture">Architecture</a>
+    <a href="#capabilities">Capabilities</a>
+    <a href="#api">API</a>
+    <a href="#schema">Schema</a>
+    <a href="#design">Design</a>
+    <a href="#structure">Structure</a>
+    <a href="#config">Config</a>
+    <a href="#deployment">Deployment</a>
+    <a href="#testing">Testing</a>
+    <a href="#roadmap">Roadmap</a>
+  </div>
+</nav>
+
+<main>
+
+<!-- ============ HERO ============ -->
+<section class="hero" id="top">
+  <div class="section-label reveal" style="--i:0">Project Documentation</div>
+  <h1 class="reveal" style="--i:1">Sentinel</h1>
+  <p class="tagline reveal" style="--i:2">
+    Industrial robotics telemetry ingestion platform built with FastAPI, Apache Kafka, and PostgreSQL.
+    A reliable event-driven pipeline for receiving, transporting, and persisting telemetry generated by industrial robots.
+  </p>
+  <div class="hero-stats">
+    <div class="hero-stat" style="--i:3">
+      <div class="hero-stat__value">5</div>
+      <div class="hero-stat__label">Endpoints</div>
+    </div>
+    <div class="hero-stat" style="--i:4">
+      <div class="hero-stat__value">4</div>
+      <div class="hero-stat__label">Docker Services</div>
+    </div>
+    <div class="hero-stat" style="--i:5">
+      <div class="hero-stat__value">12</div>
+      <div class="hero-stat__label">Test Cases</div>
+    </div>
+    <div class="hero-stat" style="--i:6">
+      <div class="hero-stat__value">MIT</div>
+      <div class="hero-stat__label">License</div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ ARCHITECTURE ============ -->
+<section id="architecture">
+  <div class="section-label reveal" style="--i:0">System Architecture</div>
+  <h2 class="reveal" style="--i:1">Data Flow Pipeline</h2>
+  <p class="lead reveal" style="--i:2">
+    Telemetry flows from a robot simulator through a FastAPI ingestion endpoint into Kafka,
+    where a consumer processes and persists each event to PostgreSQL. Offsets are committed
+    only after successful database writes.
+  </p>
+
+  <div class="flow-diagram reveal" style="--i:3; margin-top: 32px;">
+    <div class="flow-node flow-node--sim">
+      <div class="flow-node__label">Source</div>
+      <div class="flow-node__title">Robot Simulator</div>
+      <div class="flow-node__desc">Generates synthetic telemetry every 5s<br>temperature · vibration · motor_current</div>
+    </div>
+    <div class="flow-arrow">
+      <span class="flow-arrow__label">POST /api/v1/telemetry</span>
+      <svg viewBox="0 0 18 24"><path d="M9 2 L9 20 M4 15 L9 20 L14 15"/></svg>
+    </div>
+    <div class="flow-node flow-node--api">
+      <div class="flow-node__label">Ingestion</div>
+      <div class="flow-node__title">FastAPI API</div>
+      <div class="flow-node__desc">Validates payload via Pydantic<br>Publishes to Kafka topic</div>
+    </div>
+    <div class="flow-arrow">
+      <span class="flow-arrow__label">publish_telemetry()</span>
+      <svg viewBox="0 0 18 24"><path d="M9 2 L9 20 M4 15 L9 20 L14 15"/></svg>
+    </div>
+    <div class="flow-node flow-node--kafka">
+      <div class="flow-node__label">Message Broker</div>
+      <div class="flow-node__title">Apache Kafka</div>
+      <div class="flow-node__desc">Topic: robot-events<br>Group: telemetry-processing-group</div>
+    </div>
+    <div class="flow-arrow">
+      <span class="flow-arrow__label">consume → process → commit</span>
+      <svg viewBox="0 0 18 24"><path d="M9 2 L9 20 M4 15 L9 20 L14 15"/></svg>
+    </div>
+    <div class="flow-node flow-node--consumer">
+      <div class="flow-node__label">Processing</div>
+      <div class="flow-node__title">Kafka Consumer</div>
+      <div class="flow-node__desc">Deserializes JSON → Telemetry ORM<br>Commits DB transaction</div>
+    </div>
+    <div class="flow-arrow">
+      <span class="flow-arrow__label">INSERT on success</span>
+      <svg viewBox="0 0 18 24"><path d="M9 2 L9 20 M4 15 L9 20 L14 15"/></svg>
+    </div>
+    <div class="flow-node flow-node--db">
+      <div class="flow-node__label">Persistence</div>
+      <div class="flow-node__title">PostgreSQL 16</div>
+      <div class="flow-node__desc">Table: robot_telemetry<br>Queryable via GET endpoints</div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ CAPABILITIES ============ -->
+<section id="capabilities">
+  <div class="section-label reveal" style="--i:0">Current Capabilities</div>
+  <h2 class="reveal" style="--i:1">What Sentinel Does</h2>
+  <p class="lead reveal" style="--i:2; margin-bottom: 28px;">
+    The platform provides a complete telemetry pipeline from ingestion to persistence with reliability guarantees.
+  </p>
+
+  <div class="card-grid">
+    <div class="ve-card ve-card--accent reveal" style="--i:3">
+      <div class="ve-card__label">Ingestion</div>
+      <h3>REST API</h3>
+      <p>FastAPI endpoint receives robot telemetry with Pydantic validation — range checks on temperature, vibration, and motor current.</p>
+    </div>
+    <div class="ve-card ve-card--amber reveal" style="--i:4">
+      <div class="ve-card__label">Transport</div>
+      <h3>Kafka Event Streaming</h3>
+      <p>Asynchronous event processing through the <code>robot-events</code> topic with a dedicated consumer group for processing.</p>
+    </div>
+    <div class="ve-card ve-card--teal reveal" style="--i:5">
+      <div class="ve-card__label">Reliability</div>
+      <h3>Manual Offset Commits</h3>
+      <p>Kafka offsets are committed only after successful database persistence, preventing message loss on DB failures.</p>
+    </div>
+    <div class="ve-card ve-card--green reveal" style="--i:6">
+      <div class="ve-card__label">Persistence</div>
+      <h3>PostgreSQL Storage</h3>
+      <p>Telemetry is persisted to the <code>robot_telemetry</code> table with transaction rollback on failure and queryable endpoints.</p>
+    </div>
+    <div class="ve-card ve-card--slate reveal" style="--i:7">
+      <div class="ve-card__label">Testing</div>
+      <h3>Robot Simulator</h3>
+      <p>Synthetic telemetry generator for local development and testing, posting events every 5 seconds to the ingestion API.</p>
+    </div>
+    <div class="ve-card ve-card--rose reveal" style="--i:8">
+      <div class="ve-card__label">Infrastructure</div>
+      <h3>Docker Compose</h3>
+      <p>Containerized environment for API, consumer, Kafka, and PostgreSQL with health checks and service dependencies.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ API REFERENCE ============ -->
+<section id="api">
+  <div class="section-label reveal" style="--i:0">API Reference</div>
+  <h2 class="reveal" style="--i:1">REST Endpoints</h2>
+  <p class="lead reveal" style="--i:2; margin-bottom: 24px;">
+    All telemetry routes are prefixed with <code>/api/v1</code>. FastAPI auto-generates Swagger UI at <code>/docs</code> and ReDoc at <code>/redoc</code>.
+  </p>
+
+  <div class="table-wrap reveal" style="--i:3">
+    <div class="table-scroll">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Method</th>
+            <th>Path</th>
+            <th>Description</th>
+            <th>Response Model</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="status status--get">GET</span></td>
+            <td><code>/</code></td>
+            <td>Root health check<small>Returns service status</small></td>
+            <td><code>{"status", "service"}</code></td>
+          </tr>
+          <tr>
+            <td><span class="status status--get">GET</span></td>
+            <td><code>/api/v1/health</code></td>
+            <td>Liveness probe<small>Always returns healthy if API is running</small></td>
+            <td><code>{"status": "healthy"}</code></td>
+          </tr>
+          <tr>
+            <td><span class="status status--get">GET</span></td>
+            <td><code>/api/v1/ready</code></td>
+            <td>Readiness probe<small>Checks PostgreSQL connection and Kafka producer connectivity</small></td>
+            <td><code>{"status": "ready" | "not_ready"}</code></td>
+          </tr>
+          <tr>
+            <td><span class="status status--post">POST</span></td>
+            <td><code>/api/v1/telemetry</code></td>
+            <td>Ingest telemetry event<small>Validates payload, publishes to Kafka. Returns 503 if Kafka unavailable.</small></td>
+            <td><code>TelemetryAcceptedResponse</code></td>
+          </tr>
+          <tr>
+            <td><span class="status status--get">GET</span></td>
+            <td><code>/api/v1/telemetry</code></td>
+            <td>Query recent telemetry<small>Returns latest 100 records ordered by timestamp descending</small></td>
+            <td><code>list[TelemetryResponse]</code></td>
+          </tr>
+          <tr>
+            <td><span class="status status--get">GET</span></td>
+            <td><code>/api/v1/robots/{robot_id}/telemetry</code></td>
+            <td>Query telemetry by robot<small>Returns latest 100 records for a specific robot. 404 if none found.</small></td>
+            <td><code>list[TelemetryResponse]</code></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="callout reveal" style="--i:4">
+    <div class="callout__title">Ingestion Flow</div>
+    <p>When <code>POST /api/v1/telemetry</code> receives a payload, it validates the structure via the <code>RobotTelemetry</code> Pydantic model, then calls <code>publish_telemetry()</code> to send the event to Kafka. If Kafka is unreachable, a <code>503</code> is returned with "Telemetry ingestion service unavailable". On success, the API returns <code>202</code>-style acceptance with the robot ID.</p>
+  </div>
+</section>
+
+<!-- ============ SCHEMA ============ -->
+<section id="schema">
+  <div class="section-label reveal" style="--i:0">Data Models</div>
+  <h2 class="reveal" style="--i:1">Telemetry Event Schema</h2>
+  <p class="lead reveal" style="--i:2">
+    The <code>RobotTelemetry</code> Pydantic model validates incoming telemetry with range constraints on each sensor reading.
+  </p>
+
+  <div class="two-col">
+    <div class="reveal" style="--i:3">
+      <h3 style="margin-bottom: 12px;">Input Model — <code>RobotTelemetry</code></h3>
+      <div class="schema-block">
+        <div class="schema-block__header">Request Body</div>
+        <pre><span class="k">robot_id</span>:       <span class="f">str</span>     <span class="c"># 3–50 chars</span>
+<span class="k">temperature</span>:    <span class="f">float</span>  <span class="c"># -50 to 200 °C</span>
+<span class="k">vibration</span>:      <span class="f">float</span>  <span class="c"># 0 to 100</span>
+<span class="k">motor_current</span>:  <span class="f">float</span>  <span class="c"># 0 to 1000 A</span>
+<span class="k">timestamp</span>:      <span class="f">datetime</span> <span class="c"># ISO 8601</span></pre>
+      </div>
+
+      <h3 style="margin: 20px 0 12px;">Example Payload</h3>
+      <div class="schema-block">
+        <div class="schema-block__header">JSON</div>
+        <pre>{
+  <span class="s">"robot_id"</span>: <span class="s">"ARM-001"</span>,
+  <span class="s">"temperature"</span>: <span class="n">72.5</span>,
+  <span class="s">"vibration"</span>: <span class="n">0.04</span>,
+  <span class="s">"motor_current"</span>: <span class="n">3.2</span>,
+  <span class="s">"timestamp"</span>: <span class="s">"2026-08-08T23:00:00Z"</span>
+}</pre>
+      </div>
+    </div>
+
+    <div class="reveal" style="--i:4">
+      <h3 style="margin-bottom: 12px;">Database Table — <code>robot_telemetry</code></h3>
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Column</th>
+              <th>Type</th>
+              <th>Notes</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>id</code></td>
+              <td>Integer</td>
+              <td><span class="tag tag--green">PK</span> indexed</td>
+            </tr>
+            <tr>
+              <td><code>robot_id</code></td>
+              <td>String</td>
+              <td><span class="tag tag--accent">Indexed</span></td>
+            </tr>
+            <tr>
+              <td><code>temperature</code></td>
+              <td>Float</td>
+              <td>°C</td>
+            </tr>
+            <tr>
+              <td><code>vibration</code></td>
+              <td>Float</td>
+              <td>g-force</td>
+            </tr>
+            <tr>
+              <td><code>motor_current</code></td>
+              <td>Float</td>
+              <td>Amperes</td>
+            </tr>
+            <tr>
+              <td><code>timestamp</code></td>
+              <td>DateTime</td>
+              <td>UTC</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3 style="margin: 20px 0 12px;">Response Models</h3>
+      <div class="schema-block">
+        <div class="schema-block__header">TelemetryAcceptedResponse</div>
+        <pre><span class="k">status</span>:   <span class="f">str</span>   <span class="c"># "accepted"</span>
+<span class="k">robot_id</span>: <span class="f">str</span>
+<span class="k">message</span>:  <span class="f">str</span>   <span class="c"># "Telemetry queued"</span></pre>
+      </div>
+      <div class="schema-block" style="margin-top: 12px;">
+        <div class="schema-block__header">TelemetryResponse</div>
+        <pre><span class="k">id</span>:             <span class="f">int</span>
+<span class="k">robot_id</span>:       <span class="f">str</span>
+<span class="k">temperature</span>:    <span class="f">float</span>
+<span class="k">vibration</span>:      <span class="f">float</span>
+<span class="k">motor_current</span>:  <span class="f">float</span>
+<span class="k">timestamp</span>:      <span class="f">datetime</span></pre>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ DESIGN DECISIONS ============ -->
+<section id="design">
+  <div class="section-label reveal" style="--i:0">Design Decisions</div>
+  <h2 class="reveal" style="--i:1">Architecture Choices</h2>
+  <p class="lead reveal" style="--i:2; margin-bottom: 28px;">
+    Two core decisions shape Sentinel's reliability model.
+  </p>
+
+  <div class="two-col">
+    <div class="ve-card ve-card--teal reveal" style="--i:3">
+      <div class="ve-card__label">Decision 1</div>
+      <h3>Manual Kafka Offset Management</h3>
+      <p style="margin-bottom: 12px;">Kafka offsets are committed only after successful database persistence. This prevents a message from being acknowledged before its telemetry has been stored.</p>
+      <div class="pipeline" style="margin-top: 16px;">
+        <div class="pipeline-step">
+          <div class="pipeline-step__num">1</div>
+          <div class="pipeline-step__name">Receive</div>
+          <div class="pipeline-step__detail">Consumer reads<br>message</div>
+        </div>
+        <div class="pipeline-arrow">→</div>
+        <div class="pipeline-step">
+          <div class="pipeline-step__num">2</div>
+          <div class="pipeline-step__name">Persist</div>
+          <div class="pipeline-step__detail">DB commit<br>attempted</div>
+        </div>
+        <div class="pipeline-arrow">→</div>
+        <div class="pipeline-step">
+          <div class="pipeline-step__num">3</div>
+          <div class="pipeline-step__name">Commit</div>
+          <div class="pipeline-step__detail">Offset committed<br>only on success</div>
+        </div>
+      </div>
+      <div class="callout callout--warning" style="margin-top: 16px; margin-bottom: 0;">
+        <div class="callout__title">Failure Path</div>
+        <p>If <code>db.commit()</code> raises, the transaction is rolled back and the offset is <strong>not</strong> committed — the message gets reprocessed on the next poll.</p>
+      </div>
+    </div>
+
+    <div class="ve-card ve-card--green reveal" style="--i:4">
+      <div class="ve-card__label">Decision 2</div>
+      <h3>PostgreSQL for Persistence</h3>
+      <p>PostgreSQL provides a reliable relational store for the current telemetry workload while keeping the architecture straightforward and easy to run locally.</p>
+      <ul class="node-list" style="margin-top: 16px;">
+        <li><code>robot_telemetry</code> table with indexed <code>robot_id</code></li>
+        <li>SQLAlchemy ORM with explicit session management</li>
+        <li>Auto-creates tables on API startup via <code>init_db()</code></li>
+        <li>Schema is simple — ready for time-series DB migration later</li>
+      </ul>
+      <div class="callout" style="margin-top: 16px; margin-bottom: 0;">
+        <div class="callout__title">Future-Proof</div>
+        <p>A specialized time-series database can be introduced as scale and query requirements evolve.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ PROJECT STRUCTURE ============ -->
+<section id="structure">
+  <div class="section-label reveal" style="--i:0">Repository Layout</div>
+  <h2 class="reveal" style="--i:1">Project Structure</h2>
+  <p class="lead reveal" style="--i:2; margin-bottom: 24px;">
+    The codebase is organized into clearly separated concerns: API layer, database layer, Kafka integration, data models, and a simulator.
+  </p>
+
+  <div class="two-col">
+    <div class="reveal" style="--i:3">
+      <div class="dir-tree">Sentinel/
+├── <span class="dir">.github/</span>
+│   └── workflows/
+│       └── <span class="file">tests.yml</span>        <span class="ann">— CI pipeline</span>
+├── <span class="dir">app/</span>
+│   ├── <span class="dir">api/</span>
+│   │   ├── <span class="hl">main.py</span>        <span class="ann">— FastAPI app</span>
+│   │   └── <span class="hl">routes.py</span>      <span class="ann">— Route handlers</span>
+│   ├── <span class="dir">database/</span>
+│   │   ├── <span class="file">connection.py</span> <span class="ann">— Engine + session</span>
+│   │   ├── <span class="file">init_db.py</span>    <span class="ann">— Table creation</span>
+│   │   └── <span class="hl">models.py</span>      <span class="ann">— Telemetry ORM</span>
+│   ├── <span class="dir">kafka/</span>
+│   │   ├── <span class="hl">consumer.py</span>     <span class="ann">— Consumer logic</span>
+│   │   └── <span class="file">producer.py</span>   <span class="ann">— Producer logic</span>
+│   ├── <span class="dir">models/</span>
+│   │   ├── <span class="file">schemas.py</span>    <span class="ann">— Pydantic models</span>
+│   │   └── <span class="file">telemetry.py</span> <span class="ann">— Input validation</span>
+│   ├── <span class="dir">services/</span>
+│   │   └── <span class="file">__init__.py</span>
+│   └── <span class="file">config.py</span>        <span class="ann">— Settings</span></div>
+    </div>
+    <div class="reveal" style="--i:4">
+      <div class="dir-tree" style="margin-top: 0;">├── <span class="dir">docs/</span>
+│   └── <span class="hl">Sentinel_Docs.html</span> <span class="ann">— This page</span>
+├── <span class="dir">simulator/</span>
+│   └── <span class="hl">robot_simulator.py</span>
+├── <span class="dir">tests/</span>
+│   ├── <span class="file">test_kafka_consumer.py</span>
+│   └── <span class="file">test_telemetry_api.py</span>
+├── <span class="file">.dockerignore</span>
+├── <span class="file">.env.example</span>       <span class="ann">— Config template</span>
+├── <span class="file">.gitignore</span>
+├── <span class="file">Dockerfile</span>         <span class="ann">— Python 3.10-slim</span>
+├── <span class="file">docker-compose.yml</span> <span class="ann">— 4 services</span>
+├── <span class="file">requirements.txt</span>
+└── <span class="file">LICENSE</span>           <span class="ann">— MIT</span></div>
+
+      <div class="card-grid" style="margin-top: 20px; grid-template-columns: 1fr;">
+        <div class="ve-card ve-card--slate">
+          <div class="ve-card__label">Key Modules</div>
+          <ul class="node-list">
+            <li><code>app/api/routes.py</code> — 5 endpoints, Kafka readiness check</li>
+            <li><code>app/kafka/consumer.py</code> — JSON deserializer, manual offset commit</li>
+            <li><code>app/kafka/producer.py</code> — JSON serializer, flush + close</li>
+            <li><code>app/config.py</code> — Pydantic Settings, env-driven config</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ CONFIGURATION ============ -->
+<section id="config">
+  <div class="section-label reveal" style="--i:0">Configuration</div>
+  <h2 class="reveal" style="--i:1">Environment Variables</h2>
+  <p class="lead reveal" style="--i:2; margin-bottom: 24px;">
+    Sentinel uses <code>pydantic-settings</code> to load configuration from a <code>.env</code> file. Copy <code>.env.example</code> to <code>.env</code> and provide values.
+  </p>
+
+  <div class="table-wrap reveal" style="--i:3">
+    <div class="table-scroll">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Variable</th>
+            <th>Default</th>
+            <th>Description</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>POSTGRES_USER</code></td>
+            <td>—</td>
+            <td>PostgreSQL username<small>Required</small></td>
+          </tr>
+          <tr>
+            <td><code>POSTGRES_PASSWORD</code></td>
+            <td>—</td>
+            <td>PostgreSQL password<small>Required</small></td>
+          </tr>
+          <tr>
+            <td><code>POSTGRES_DB</code></td>
+            <td><code>physicalai</code></td>
+            <td>Database name</td>
+          </tr>
+          <tr>
+            <td><code>POSTGRES_HOST</code></td>
+            <td><code>localhost</code></td>
+            <td>PostgreSQL host<small>Set to <code>postgres</code> in Docker</small></td>
+          </tr>
+          <tr>
+            <td><code>POSTGRES_PORT</code></td>
+            <td><code>5432</code></td>
+            <td>PostgreSQL port</td>
+          </tr>
+          <tr>
+            <td><code>KAFKA_BOOTSTRAP_SERVERS</code></td>
+            <td><code>localhost:9092</code></td>
+            <td>Kafka broker address<small>Set to <code>kafka:9092</code> in Docker</small></td>
+          </tr>
+          <tr>
+            <td><code>KAFKA_TOPIC</code></td>
+            <td><code>robot-events</code></td>
+            <td>Kafka topic for telemetry events</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="callout callout--warning reveal" style="--i:4">
+    <div class="callout__title">Note</div>
+    <p><code>.env</code> is excluded from version control. Use <code>.env.example</code> as the template. When running through Docker Compose, the API and consumer use Docker service names (<code>postgres</code>, <code>kafka</code>) for host resolution.</p>
+  </div>
+</section>
+
+<!-- ============ DEPLOYMENT ============ -->
+<section id="deployment">
+  <div class="section-label reveal" style="--i:0">Deployment</div>
+  <h2 class="reveal" style="--i:1">Running Sentinel</h2>
+  <p class="lead reveal" style="--i:2; margin-bottom: 28px;">
+    Docker Compose orchestrates four services: PostgreSQL, Kafka, the FastAPI API, and the Kafka consumer.
+  </p>
+
+  <div class="two-col">
+    <div class="reveal" style="--i:3">
+      <h3 style="margin-bottom: 12px;">Docker Compose</h3>
+      <div class="code-file">
+        <div class="code-file__header">Terminal — Build & Start</div>
+        <pre class="code-file__body"><span class="c"># Build and start all services</span>
+docker compose up --build
+
+<span class="c"># Run in detached mode</span>
+docker compose up -d --build
+
+<span class="c"># Check service status</span>
+docker compose ps
+
+<span class="c"># View logs</span>
+docker compose logs -f</pre>
+      </div>
+
+      <h3 style="margin: 20px 0 12px;">Docker Services</h3>
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Service</th>
+              <th>Image</th>
+              <th>Port</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>postgres</code></td>
+              <td>postgres:16</td>
+              <td>5432</td>
+            </tr>
+            <tr>
+              <td><code>kafka</code></td>
+              <td>apache/kafka:3.7.2</td>
+              <td>9092</td>
+            </tr>
+            <tr>
+              <td><code>api</code></td>
+              <td>built from Dockerfile</td>
+              <td>8000</td>
+            </tr>
+            <tr>
+              <td><code>consumer</code></td>
+              <td>built from Dockerfile</td>
+              <td>—</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="reveal" style="--i:4">
+      <h3 style="margin-bottom: 12px;">Local Development</h3>
+      <div class="code-file">
+        <div class="code-file__header">Terminal — Without Docker</div>
+        <pre class="code-file__body"><span class="c"># Create virtual environment</span>
+python -m venv venv
+source venv/bin/activate
+<span class="c"># Windows: venv\Scripts\activate</span>
+
+<span class="c"># Install dependencies</span>
+pip install -r requirements.txt
+
+<span class="c"># Run tests</span>
+pytest -v
+
+<span class="c"># Start the API</span>
+uvicorn app.api.main:app --reload
+
+<span class="c"># In another terminal, start consumer</span>
+python -m app.kafka.consumer
+
+<span class="c"># Run the simulator</span>
+python simulator/robot_simulator.py</pre>
+      </div>
+
+      <div class="callout" style="margin-top: 20px;">
+        <div class="callout__title">Prerequisites</div>
+        <p>Kafka and PostgreSQL must be reachable for the API and consumer to function outside of tests. Run <code>docker compose up postgres kafka</code> to start just the infrastructure.</p>
+      </div>
+
+      <h3 style="margin: 20px 0 12px;">API Docs (when running)</h3>
+      <ul class="node-list">
+        <li>Swagger UI: <code>http://localhost:8000/docs</code></li>
+        <li>ReDoc: <code>http://localhost:8000/redoc</code></li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ============ TESTING ============ -->
+<section id="testing">
+  <div class="section-label reveal" style="--i:0">Quality Assurance</div>
+  <h2 class="reveal" style="--i:1">Testing & CI</h2>
+  <p class="lead reveal" style="--i:2; margin-bottom: 24px;">
+    Sentinel includes 12 test cases across two suites covering API behavior and Kafka consumer reliability. Tests run automatically via GitHub Actions on every push and pull request.
+  </p>
+
+  <div class="card-grid">
+    <div class="ve-card ve-card--accent reveal" style="--i:3">
+      <div class="ve-card__label">test_telemetry_api.py</div>
+      <h3>API Tests (8 cases)</h3>
+      <ul class="node-list">
+        <li>Health check returns <code>200</code></li>
+        <li>Telemetry ingestion accepts valid payload</li>
+        <li>Rejects invalid temperature (<code>422</code>)</li>
+        <li>Returns <code>503</code> when Kafka unavailable</li>
+        <li>Readiness check — both DB and Kafka</li>
+        <li>Readiness fails on DB error</li>
+        <li>Readiness fails on Kafka error</li>
+        <li>Robot telemetry query returns <code>404</code> for unknown robot</li>
+      </ul>
+    </div>
+    <div class="ve-card ve-card--teal reveal" style="--i:4">
+      <div class="ve-card__label">test_kafka_consumer.py</div>
+      <h3>Consumer Tests (4 cases)</h3>
+      <ul class="node-list">
+        <li>Commits offset after successful persistence</li>
+        <li>Does <strong>not</strong> commit offset when persistence fails</li>
+        <li><code>process_telemetry</code> commits transaction on success</li>
+        <li><code>process_telemetry</code> rolls back on database error</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="callout reveal" style="--i:5; margin-top: 20px;">
+    <div class="callout__title">CI Pipeline</div>
+    <p>GitHub Actions runs <code>pytest</code> on Python 3.10 for every push to <code>main</code> and <code>feature/**</code> branches, and on all pull requests targeting <code>main</code>. Tests use an in-memory SQLite database and mock Kafka producers — no external services required.</p>
+  </div>
+</section>
+
+<!-- ============ TECH STACK ============ -->
+<section id="stack">
+  <div class="section-label reveal" style="--i:0">Technology</div>
+  <h2 class="reveal" style="--i:1">Tech Stack</h2>
+  <p class="lead reveal" style="--i:2; margin-bottom: 24px;">
+    Built on a modern Python stack with battle-tested infrastructure components.
+  </p>
+
+  <div class="table-wrap reveal" style="--i:3">
+    <div class="table-scroll">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Technology</th>
+            <th>Role</th>
+            <th>Where</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Python 3.10</td>
+            <td>Application runtime</td>
+            <td><code>Dockerfile</code></td>
+          </tr>
+          <tr>
+            <td>FastAPI</td>
+            <td>REST API framework</td>
+            <td><code>app/api/</code></td>
+          </tr>
+          <tr>
+            <td>Apache Kafka 3.7.2</td>
+            <td>Event streaming broker</td>
+            <td><code>docker-compose.yml</code></td>
+          </tr>
+          <tr>
+            <td>PostgreSQL 16</td>
+            <td>Persistent storage</td>
+            <td><code>app/database/</code></td>
+          </tr>
+          <tr>
+            <td>SQLAlchemy</td>
+            <td>Database ORM</td>
+            <td><code>models.py</code>, <code>connection.py</code></td>
+          </tr>
+          <tr>
+            <td>Pydantic Settings</td>
+            <td>Configuration management</td>
+            <td><code>config.py</code></td>
+          </tr>
+          <tr>
+            <td>kafka-python</td>
+            <td>Kafka client library</td>
+            <td><code>app/kafka/</code></td>
+          </tr>
+          <tr>
+            <td>Docker Compose</td>
+            <td>Container orchestration</td>
+            <td><code>docker-compose.yml</code></td>
+          </tr>
+          <tr>
+            <td>Pytest</td>
+            <td>Test framework</td>
+            <td><code>tests/</code></td>
+          </tr>
+          <tr>
+            <td>GitHub Actions</td>
+            <td>Continuous integration</td>
+            <td><code>.github/workflows/</code></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ============ ROADMAP ============ -->
+<section id="roadmap">
+  <div class="section-label reveal" style="--i:0">Future Direction</div>
+  <h2 class="reveal" style="--i:1">Roadmap</h2>
+  <p class="lead reveal" style="--i:2; margin-bottom: 28px;">
+    Planned improvements to scale Sentinel toward production readiness.
+  </p>
+
+  <div class="card-grid">
+    <div class="ve-card ve-card--accent reveal" style="--i:3">
+      <div class="ve-card__label">Schema</div>
+      <h3>Schema Registry</h3>
+      <p>Schema validation and schema registry integration for contract enforcement across producers and consumers.</p>
+    </div>
+    <div class="ve-card ve-card--rose reveal" style="--i:4">
+      <div class="ve-card__label">Resilience</div>
+      <h3>Dead-Letter Queue</h3>
+      <p>DLQ for invalid or repeatedly failing events, preventing poison-pill messages from blocking the pipeline.</p>
+    </div>
+    <div class="ve-card ve-card--teal reveal" style="--i:5">
+      <div class="ve-card__label">Retries</div>
+      <h3>Consumer Retry Handling</h3>
+      <p>Improved retry logic with exponential backoff and configurable retry policies for transient failures.</p>
+    </div>
+    <div class="ve-card ve-card--amber reveal" style="--i:6">
+      <div class="ve-card__label">Observability</div>
+      <h3>Monitoring & Visualization</h3>
+      <p>Telemetry monitoring dashboards and visualization for real-time insight into robot health metrics.</p>
+    </div>
+    <div class="ve-card ve-card--green reveal" style="--i:7">
+      <div class="ve-card__label">Scale</div>
+      <h3>Time-Series Database</h3>
+      <p>Evaluation of specialized time-series databases as data volume and query patterns evolve beyond PostgreSQL.</p>
+    </div>
+    <div class="ve-card ve-card--slate reveal" style="--i:8">
+      <div class="ve-card__label">Production</div>
+      <h3>Kafka Scaling</h3>
+      <p>Production Kafka configuration with multi-broker clusters, partitioning strategy, and consumer scaling.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FOOTER ============ -->
+<section style="padding: 40px 0; text-align: center;">
+  <div class="reveal" style="--i:0">
+    <p style="color: var(--text-dim); font-size: 13px; font-family: var(--font-mono);">
+      Sentinel &middot; Industrial robotics telemetry ingestion platform<br>
+      MIT License &middot; <a href="https://github.com/shantanudxt/Sentinel">github.com/shantanudxt/Sentinel</a>
+    </p>
+  </div>
+</section>
+
+</main>
+
+</body>
+</html>
